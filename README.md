@@ -20,7 +20,7 @@ function rave(system) {
   }
 }
 
-export default main() {
+export default function main() {
   try {
     rave({ status: 'down' });
   } catch(e) {
