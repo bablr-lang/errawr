@@ -12,17 +12,17 @@ Errawr is unrelated to the Ruby package of the same (excellent) name.
 ```js
 import Error, { rawr } from 'errawr';
 
-function rave() {
-  const system = { status: 'down' };
-
-  if (system.status !== 'up') {
+function rave(system) {
+  if (system.status === 'up') {
+    // no rave for The Cheat today I guess
+  } else {
     throw new Error(rawr('The system is {system.status}'), { name: 'SystemError', info: { system } });
   }
 }
 
 export default main() {
   try {
-    rave();
+    rave({ status: 'down' });
   } catch(e) {
     // stringify your errors as far up the call stack as is possible.
     console.error(Errawr.printStack(e));
@@ -30,7 +30,7 @@ export default main() {
     /*
     SystemError: The system is {status: 'down'}
     at rave:7:4
-    at main:12:4
+    at main:13:4
     */
   }
 }
