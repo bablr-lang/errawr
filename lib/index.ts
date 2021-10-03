@@ -1,5 +1,7 @@
 import Errawr from './errawr';
 import rawr from './rawr';
 
-export { Errawr, rawr };
+const { invariant } = Errawr;
+
+export { Errawr, rawr, invariant };
 export default Errawr;
