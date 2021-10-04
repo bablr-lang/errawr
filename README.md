@@ -46,9 +46,8 @@ if (system.status !== 'up') {
 
 If you don't need or want templating you can always omit `rawr`. Note that it may still be useful to provide relevant info: though it won't end up in the logs it will still be visible to you while debugging.
 
-<!-- prettier-ignore -->
 ```js
-throw new Errawr('The system is not up', { info: { system } });
+new Errawr('The system is not up', { info: { system } });
 ```
 
 ## Differences with VError
