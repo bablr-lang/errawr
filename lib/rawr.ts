@@ -76,11 +76,22 @@ export const parse = (
       if (doubleCurly) {
         i++;
       }
+
+      
+      if (!partial) {
+        throw new Error(`empty key segment at {position: ${i}} in {template: ${template}}`);
+      }
+
+      keys[keys.length - 1].parts.push(partial);
       doubleCurly = false;
       keyStart = null;
       partial = '';
     } else if (str[i] === '.') {
       if (keyStart !== null) {
+        if (!partial) {
+					throw new Error(`empty key segment at {position: ${i}} in {template: ${template}}`);
+				}
+
         keys[keys.length - 1].parts.push(partial);
         partial = '';
       }
@@ -88,20 +99,23 @@ export const parse = (
       partial += str[i];
     }
     i++;
-
-    return { literals, keys };
   }
+
+	literals.push(partial);
+
+  return { literals, keys };
 };
 
-const interpolate = (literals: Array<String>, ...keys: Array<string>) => {
-  let i = 0;
-  let str = '';
-  for (const literal of literals) {
-    str += literal;
-    str += keys[i];
-    i++;
-  }
-  return str;
+const interpolate = (literals, ...values) => {
+	let i = 0;
+	let string = literals[i];
+	for (const value of values) {
+		i++;
+		string += value;
+		string += literals[i];
+	}
+
+	return string;
 };
 
 export default function rawr(template) {
@@ -118,6 +132,6 @@ export default function rawr(template) {
       return doubleCurly ? String(value) : inspect({ [lastPart]: value });
     });
 
-    interpolate(literals, ...values);
+    return interpolate(literals, ...values);
   };
 }
