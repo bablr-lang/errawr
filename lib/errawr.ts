@@ -23,22 +23,41 @@ export default class Errawr extends Error {
     return rawr(template);
   }
 
-  static print(err: unknown) {}
-
-  static info(err: unknown) {}
-
-  static findCauseByName(err: unknown, name: string): null | Error {
-    for (let cause: unknown = err; isError(cause); cause = cause.cause) {
-      if (cause.name == name) {
-        return cause;
+  static print(err: Error): string {
+    let str = '';
+    let first = true;
+    for (const cause of Errawr.chain(err)) {
+      if (!first) {
+        str += '\nCaused by: ';
       }
+      str += `${cause.name}: ${cause.message}`;
+      if (cause.stack) {
+        if (cause.stack.startsWith(`${cause.name}: `)) {
+          cause.stack.split('\n').slice(1).join('\n');
+        }
+        str += '\n' + cause.stack;
+      }
+      first = false;
     }
-
-    return null;
+    return str;
   }
 
-  static hasCauseWithName(err: unknown, name: string): boolean {
-    return !!this.findCauseByName(err, name);
+  static info(err: Error): Record<string, any> {
+    // Should I be worried about name shadowing? How much?
+    return [...Errawr.chain(err)].reverse().reduce((info, cause) => {
+      Object.assign(info, (cause as any).info);
+      return info;
+    }, {});
+  }
+
+  static chain(err: Error): Iterable<Error> {
+    return {
+      *[Symbol.iterator]() {
+        for (let cause: unknown = err; isError(cause); cause = cause.cause) {
+          yield cause;
+        }
+      },
+    };
   }
 
   static invariant(condition: false, reason: string | Interpolator, info?: Gettable): never;
@@ -68,5 +87,9 @@ export default class Errawr extends Error {
     super(reason_, { cause });
 
     this.info = info;
+  }
+
+  chain(): Iterable<Error> {
+    return Errawr.chain(this);
   }
 }

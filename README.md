@@ -59,4 +59,6 @@ If you're already familiar with VError, here's what's changed:
 - There is no `MultiError`. Instead use the builtin `AggregateError`.
 - There is no distinction between `VError` and `SError`. Presentation details have no place at the bottom of a class hierarchy. Instead you should handle message interpolation yourself. You may use the provided `rawr` function to do basic interpolation.
 - `VError.fullStack(error)` is `Errawr.print(error)`
+- causes are now in now an iterable returned from `Errawr.causes(err)`
+  - Use your favorite [iterator tools](https://github.com/iter-tools/iter-tools/blob/trunk/API.md#find) to `find` a particular cause.
 - There is no strict mode. Serialization of interpolated values is best-effort.
