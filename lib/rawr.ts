@@ -43,7 +43,7 @@ export const parse = (
     } else if (str[i] === '{') {
       literals.push(partial);
 
-      if (keyStart != null) {
+      if (keyStart !== null) {
         throw new Error(
           `invalid {character: ${str[i]}} at {position: ${i}} in {template: ${template}}`,
         );
@@ -56,12 +56,9 @@ export const parse = (
       }
       keyStart = i + 1;
       partial = '';
-    } else if (str[i] === '}') {
-      if (!/\d+|[a-zA-Z$_][\w\-$]*?(?:\.[\w\-$]*?)*?/.test(partial)) {
-        throw new Error(`invalid interpolated {key: ${partial}}`);
-      }
-      keys.push({ parts: partial.split('.'), doubleCurly });
 
+      keys.push({ parts: [], doubleCurly });
+    } else if (str[i] === '}') {
       if (keyStart === i) {
         throw new Error(
           `empty {braces: \`${doubleCurly ? '{{}}' : '{}'}\`} at {position: ${
@@ -82,6 +79,11 @@ export const parse = (
       doubleCurly = false;
       keyStart = null;
       partial = '';
+    } else if (str[i] === '.') {
+      if (keyStart !== null) {
+        keys[keys.length - 1].parts.push(partial);
+        partial = '';
+      }
     } else {
       partial += str[i];
     }
