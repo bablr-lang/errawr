@@ -54,6 +54,10 @@ export default class Errawr extends Error {
     return {
       *[Symbol.iterator]() {
         for (let cause: unknown = err; isError(cause); cause = cause.cause) {
+          if (typeof cause === 'function') {
+            // VError compatibility
+            yield (cause as any)();
+          }
           yield cause;
         }
       },
