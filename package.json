@@ -7,10 +7,12 @@
     "lib/**/*.js",
     "lib/**/*.d.ts"
   ],
+  "sideEffects": false,
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint .",
     "format": "prettier --write '**/*.{js,json,md}'",
+    "build": "tsc",
     "test": "jest",
     "verify": "run-s lint test"
   },

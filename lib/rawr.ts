@@ -77,7 +77,6 @@ export const parse = (
         i++;
       }
 
-      
       if (!partial) {
         throw new Error(`empty key segment at {position: ${i}} in {template: ${template}}`);
       }
@@ -89,8 +88,8 @@ export const parse = (
     } else if (str[i] === '.') {
       if (keyStart !== null) {
         if (!partial) {
-					throw new Error(`empty key segment at {position: ${i}} in {template: ${template}}`);
-				}
+          throw new Error(`empty key segment at {position: ${i}} in {template: ${template}}`);
+        }
 
         keys[keys.length - 1].parts.push(partial);
         partial = '';
@@ -101,24 +100,29 @@ export const parse = (
     i++;
   }
 
-	literals.push(partial);
+  literals.push(partial);
 
   return { literals, keys };
 };
 
 const interpolate = (literals, ...values) => {
-	let i = 0;
-	let string = literals[i];
-	for (const value of values) {
-		i++;
-		string += value;
-		string += literals[i];
-	}
+  let i = 0;
+  let string = literals[i];
+  for (const value of values) {
+    i++;
+    string += value;
+    string += literals[i];
+  }
 
-	return string;
+  return string;
 };
 
-export default function rawr(template) {
+type RawrOptions = {
+  rest: boolean;
+};
+
+export default function rawr(template, options?: RawrOptions) {
+  const { rest } = options;
   if (typeof template !== 'string') {
     throw new TypeError(`Expected a string for {template: ${template}}`);
   }
@@ -132,6 +136,26 @@ export default function rawr(template) {
       return doubleCurly ? String(value) : inspect({ [lastPart]: value });
     });
 
-    return interpolate(literals, ...values);
+    const interpolated = interpolate(literals, ...values);
+
+    if (rest) {
+      const used = {};
+      const lines = [];
+
+      for (const key of keys) {
+        used[key.parts[0]] = true;
+      }
+
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key) && !used.hasOwnProperty(key)) {
+          lines.push(inspect({ [key]: data[key] }));
+        }
+      }
+
+      if (lines.length > 0) {
+        return interpolated + '\n  ' + lines.join('\n  ');
+      }
+    }
+    return interpolated;
   };
 }

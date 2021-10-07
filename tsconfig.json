@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
     "downlevelIteration": true,
-    "target": "es5",
+    "target": "es6",
     "esModuleInterop": true
   }
 }
