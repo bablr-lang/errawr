@@ -2,7 +2,7 @@
   "name": "errawr",
   "version": "0.1.0",
   "description": "Build with better errors! Rawr!",
-  "main": "lib/index",
+  "main": "lib/index.js",
   "files": [
     "lib/**/*.js",
     "lib/**/*.d.ts"
@@ -25,19 +25,19 @@
     ]
   },
   "keywords": [
-    "build",
-    "macro",
-    "generate",
-    "generator",
-    "babel"
+    "error",
+    "template",
+    "interpolate",
+    "rawr",
+    "properties",
+    "debug"
   ],
-  "repository": "git@github.com:conartist6/macrome.git",
+  "repository": "git@github.com:conartist6/errawr.git",
   "author": "Conrad Buck <conartist6@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "error-cause": "^1.0.0",
-    "object-inspect": "^1.11.0",
-    "pupa": "^3.1.0"
+    "object-inspect": "^1.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
