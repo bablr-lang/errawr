@@ -69,7 +69,7 @@ export default class Errawr extends Error {
     info?: Gettable,
   ): asserts condition;
   static invariant(condition: unknown, reason: string | Interpolator, info?: Gettable) {
-    if (condition) {
+    if (!condition) {
       // i.e. TypeError.invariant(...) or invariant.call(TypeError, ...)
       const ctor: any = typeof this === 'function' ? this : Errawr;
 
