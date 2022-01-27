@@ -8,7 +8,7 @@ interface InvariantStatic {
 }
 
 // See https://github.com/microsoft/TypeScript/issues/36931
-declare let invariant: InvariantStatic;
+const invariant: InvariantStatic = Errawr.invariant;
 
 export { Errawr, Errawr as Error, rawr, invariant, hasName, isError };
 export default Errawr;
