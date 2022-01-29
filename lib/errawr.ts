@@ -29,7 +29,7 @@ export default class Errawr extends Error {
       if (cause.stack) {
         let stack = cause.stack;
         if (stack.startsWith(header)) {
-          stack = stack.slice(header.length);
+          stack = stack.slice(header.length + 1);
         }
 
         str += '\n' + stack;
