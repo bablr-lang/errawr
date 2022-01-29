@@ -118,11 +118,11 @@ const interpolate = (literals, ...values) => {
 };
 
 type RawrOptions = {
-  rest: boolean;
+  rest?: boolean;
 };
 
-export default function rawr(template, options?: RawrOptions) {
-  const { rest } = options;
+export default function rawr(template, options: RawrOptions = {}) {
+  const { rest = true } = options;
   if (typeof template !== 'string') {
     throw new TypeError(`Expected a string for {template: ${template}}`);
   }
