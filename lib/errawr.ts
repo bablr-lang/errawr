@@ -3,7 +3,7 @@ import { isError } from './helpers';
 
 export type Gettable = Array<any> | Record<string, any>;
 export type Interpolator = (data: Gettable) => string;
-export type Options = { info?: Gettable; cause?: any; topFrame?: Function };
+export type Options = { info?: Gettable; code?: any; cause?: any; topFrame?: Function };
 export type InvariantOptions = Options & { ctor?: Function };
 
 // TODO: how to handle AggregateErrors
@@ -78,7 +78,7 @@ export default class Errawr extends Error {
   }
 
   constructor(reason: string | Interpolator, options?: Options) {
-    const { info, cause, topFrame } = options || {};
+    const { info, cause, code, topFrame } = options || {};
 
     let reason_ = typeof reason === 'function' ? reason(info) : reason;
 
@@ -87,6 +87,12 @@ export default class Errawr extends Error {
 
     Object.defineProperty(this, 'cause', {
       value: cause,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+    Object.defineProperty(this, 'code', {
+      value: code,
       writable: true,
       enumerable: false,
       configurable: true,
