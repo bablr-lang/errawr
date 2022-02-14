@@ -51,12 +51,15 @@ export default class Errawr extends Error {
   static chain(err: Error): Iterable<Error> {
     return {
       *[Symbol.iterator]() {
-        for (let cause: unknown = err; isError(cause); cause = cause.cause) {
-          if (typeof cause === 'function') {
-            // VError compatibility
-            yield (cause as any)();
+        let cause: unknown = err;
+        while (true) {
+          if (isError(cause)) {
+            yield cause;
+          } else {
+            break;
           }
-          yield cause;
+
+          cause = typeof cause.cause === 'function' ? cause.cause() : cause.cause;
         }
       },
     };
