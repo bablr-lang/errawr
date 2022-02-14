@@ -133,7 +133,7 @@ export default function rawr(template, options: RawrOptions = {}) {
     const values = keys.map(({ parts, doubleCurly }) => {
       const lastPart = parts[parts.length - 1];
       const value = getIn(data, parts);
-      return doubleCurly ? String(value) : inspect({ [lastPart]: value });
+      return doubleCurly ? String(value) : `{${lastPart}: ${inspect(value)}}`;
     });
 
     const interpolated = interpolate(literals, ...values);
@@ -148,7 +148,7 @@ export default function rawr(template, options: RawrOptions = {}) {
 
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key) && !used.hasOwnProperty(key)) {
-          lines.push(inspect({ [key]: data[key] }));
+          lines.push(`{${key}: ${inspect(data[key])}}`);
         }
       }
 
