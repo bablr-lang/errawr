@@ -36,13 +36,13 @@
   "author": "Conrad Buck <conartist6@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/error-cause": "^1.0.1",
     "error-cause": "^1.0.0",
     "object-inspect": "^1.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/eslint-parser": "^7.15.0",
-    "@types/error-cause": "^1.0.1",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.4.13",
     "@types/object-inspect": "^1.8.1",
