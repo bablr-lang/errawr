@@ -1,10 +1,10 @@
 import Error from 'error-cause/Error';
 
-export const toString = (o) => {
+export const toString = (o: any) => {
   return Object.prototype.toString.call(o);
 };
 
-export const isError = (e): e is Error => {
+export const isError = (e: any): e is Error => {
   return toString(e) === '[object Error]' || e instanceof Error;
 };
 

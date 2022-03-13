@@ -11,7 +11,7 @@ export declare type InvariantOptions = Options & {
 };
 export default class Errawr extends Error {
     info: Record<string, any>;
-    static rawr(template: string): (data: any) => any;
+    static rawr(template: string): (props: Record<string, unknown>) => string;
     static print(err: Error): string;
     static info(err: Error): Record<string, any>;
     static chain(err: Error): Iterable<Error>;

@@ -4,6 +4,7 @@
     "declaration": true,
     "downlevelIteration": true,
     "target": "es6",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "noImplicitAny": true
   }
 }

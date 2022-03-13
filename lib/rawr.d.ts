@@ -6,8 +6,5 @@ export declare const parse: (template: string) => {
     literals: Array<string>;
     keys: Array<KeyNode>;
 };
-declare type RawrOptions = {
-    rest?: boolean;
-};
-export default function rawr(template: any, options?: RawrOptions): (data: any) => any;
-export {};
+declare const rawr: (template: string | Array<string>, ...values: Array<unknown>) => (props: Record<string, unknown>) => string;
+export default rawr;

@@ -2,7 +2,9 @@
 
 import inspect from 'object-inspect';
 
-const getIn = (obj, keyParts) => {
+const { hasOwnProperty } = Object.prototype;
+
+const getIn = (obj: Record<string, any>, keyParts: Array<string>) => {
   let value = obj;
 
   for (const keyPart of keyParts) {
@@ -105,7 +107,7 @@ export const parse = (
   return { literals, keys };
 };
 
-const interpolate = (literals, ...values) => {
+const interpolate = (literals: Array<string>, ...values: Array<unknown>) => {
   let i = 0;
   let string = literals[i];
   for (const value of values) {
@@ -121,41 +123,74 @@ type RawrOptions = {
   rest?: boolean;
 };
 
-export default function rawr(template, options: RawrOptions = {}) {
-  const { rest = true } = options;
-  if (typeof template !== 'string') {
-    throw new TypeError(`Expected a string for {template: ${template}}`);
-  }
+const rawrInterpolate = (
+  literals: Array<string>,
+  keys: Array<KeyNode>,
+  props: Record<string, unknown>,
+  options: RawrOptions,
+) => {
+  const values = keys.map(({ parts }) => {
+    const lastPart = parts[parts.length - 1];
+    return inspect({ [lastPart]: getIn(props, parts) });
+  });
 
-  const { literals, keys } = parse(template);
+  let interpolated = interpolate(literals, ...values);
 
-  return (data) => {
-    const values = keys.map(({ parts, doubleCurly }) => {
-      const lastPart = parts[parts.length - 1];
-      const value = getIn(data, parts);
-      return doubleCurly ? String(value) : `{${lastPart}: ${inspect(value)}}`;
-    });
+  if (options.rest) {
+    const used: Record<string, boolean> = {};
+    const lines: Array<string> = [];
 
-    const interpolated = interpolate(literals, ...values);
+    for (const key of keys) {
+      used[key.parts[0]] = true;
+    }
 
-    if (rest) {
-      const used = {};
-      const lines = [];
-
-      for (const key of keys) {
-        used[key.parts[0]] = true;
-      }
-
-      for (const key in data) {
-        if (Object.prototype.hasOwnProperty.call(data, key) && !used.hasOwnProperty(key)) {
-          lines.push(`{${key}: ${inspect(data[key])}}`);
-        }
-      }
-
-      if (lines.length > 0) {
-        return interpolated + '\n  ' + lines.join('\n  ');
+    for (const key in props) {
+      if (hasOwnProperty.call(props, key) && !used.hasOwnProperty(key)) {
+        lines.push(inspect({ [key]: props[key] }));
       }
     }
-    return interpolated;
-  };
-}
+
+    if (lines.length > 0) {
+      interpolated += '\n  ' + lines.join('\n  ');
+    }
+  }
+  return interpolated;
+};
+
+const defaultOptions = {
+  rest: true,
+};
+
+const assertValidKeys = (keys: Array<KeyNode>) => {
+  for (const key of keys) {
+    if (key.doubleCurly) {
+      throw new SyntaxError('{{}} interpolation is reserved');
+    }
+  }
+};
+
+const rawr = (template: string | Array<string>, ...values: Array<unknown>) => {
+  if (Array.isArray(template)) {
+    // rawr`${str}{prop}` => props => string
+    const { literals, keys } = parse(interpolate(template, ...values));
+
+    assertValidKeys(keys);
+
+    return (props: Record<string, unknown>) =>
+      rawrInterpolate(literals, keys, props, defaultOptions);
+  } else {
+    // rawr('{prop}') => props => string
+    let [options = defaultOptions] = values;
+    const { literals, keys } = parse(template);
+
+    assertValidKeys(keys);
+
+    if (options && typeof options === 'object') {
+      options = { ...defaultOptions, ...options };
+    }
+
+    return (props: Record<string, unknown>) => rawrInterpolate(literals, keys, props, options);
+  }
+};
+
+export default rawr;
