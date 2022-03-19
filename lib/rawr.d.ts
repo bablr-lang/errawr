@@ -1,6 +1,9 @@
 export declare type KeyNode = {
+    name: string;
     parts: Array<string>;
     doubleCurly: boolean;
+    start: number;
+    end: number;
 };
 export declare const parse: (template: string) => {
     literals: Array<string>;

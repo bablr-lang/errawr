@@ -15,8 +15,11 @@ const getIn = (obj: Record<string, any>, keyParts: Array<string>) => {
 };
 
 export type KeyNode = {
+  name: string;
   parts: Array<string>;
   doubleCurly: boolean;
+  start: number;
+  end: number;
 };
 
 export const parse = (
@@ -30,9 +33,17 @@ export const parse = (
   const keys: Array<KeyNode> = [];
   let i = 0;
   let escaped = false;
-  let doubleCurly = false;
-  let keyStart = null;
   let partial = '';
+  let key: KeyNode = null;
+
+  const pushKeyPart = () => {
+    if (!partial) {
+      throw new SyntaxError(`empty key segment at {position: ${i}} in {template: ${template}}`);
+    }
+
+    keys[keys.length - 1].parts.push(partial);
+    partial = '';
+  };
 
   while (i < str.length) {
     if (escaped) {
@@ -43,58 +54,63 @@ export const parse = (
       }
       escaped = !escaped;
     } else if (str[i] === '{') {
-      literals.push(partial);
-
-      if (keyStart !== null) {
-        throw new Error(
+      if (key !== null) {
+        throw new SyntaxError(
           `invalid {character: ${str[i]}} at {position: ${i}} in {template: ${template}}`,
         );
       }
 
-      doubleCurly = false;
+      key = { name: null, parts: [], doubleCurly: false, start: i + 1, end: -1 };
+
       if (str[i + 1] === '{') {
-        doubleCurly = true;
+        key.doubleCurly = true;
         i++;
       }
-      keyStart = i + 1;
+
+      literals.push(partial);
       partial = '';
 
-      keys.push({ parts: [], doubleCurly });
+      keys.push(key);
     } else if (str[i] === '}') {
-      if (keyStart === i) {
-        throw new Error(
-          `empty {braces: \`${doubleCurly ? '{{}}' : '{}'}\`} at {position: ${
-            i - (doubleCurly ? 2 : 1)
-          }} in {template: ${template}}`,
-        );
-      }
-      if ((doubleCurly && str[i + 1] !== '}') || (!doubleCurly && str[i + 1] === '}')) {
-        throw new Error(
-          `mismatched braces at {start: ${keyStart}, end: ${
-            doubleCurly ? i : i + 1
-          }} in {template: ${template}}`,
-        );
-      }
-      if (doubleCurly) {
-        i++;
-      }
-
-      if (!partial) {
-        throw new Error(`empty key segment at {position: ${i}} in {template: ${template}}`);
-      }
-
-      keys[keys.length - 1].parts.push(partial);
-      doubleCurly = false;
-      keyStart = null;
-      partial = '';
-    } else if (str[i] === '.') {
-      if (keyStart !== null) {
-        if (!partial) {
-          throw new Error(`empty key segment at {position: ${i}} in {template: ${template}}`);
+      if (key !== null) {
+        if (key.start === i) {
+          throw new SyntaxError(
+            `empty {braces: \`${key.doubleCurly ? '{{}}' : '{}'}\`} at {position: ${
+              i - (key.doubleCurly ? 2 : 1)
+            }} in {template: ${template}}`,
+          );
+        }
+        if ((key.doubleCurly && str[i + 1] !== '}') || (!key.doubleCurly && str[i + 1] === '}')) {
+          throw new SyntaxError(
+            `mismatched braces at {start: ${key.start}, end: ${
+              key.doubleCurly ? i : i + 1
+            }} in {template: ${template}}`,
+          );
+        }
+        if (key.doubleCurly) {
+          i++;
         }
 
-        keys[keys.length - 1].parts.push(partial);
+        key.name = key.name || partial;
+        key.end = i - 1;
+        pushKeyPart();
+        key = null;
+      }
+    } else if (key !== null) {
+      if (str[i] === '.') {
+        pushKeyPart();
+      } else if (str[i] === ':') {
+        if (partial === '') {
+          throw new SyntaxError(
+            `Unexpected character at {pos: ${i}}: key cannot have an empty name`,
+          );
+        } else if (key.parts.length) {
+          throw new SyntaxError(`key name must not have multiple parts`);
+        }
+        key.name = partial;
         partial = '';
+      } else {
+        partial += str[i];
       }
     } else {
       partial += str[i];
@@ -129,9 +145,8 @@ const rawrInterpolate = (
   props: Record<string, unknown>,
   options: RawrOptions,
 ) => {
-  const values = keys.map(({ parts }) => {
-    const lastPart = parts[parts.length - 1];
-    return inspect({ [lastPart]: getIn(props, parts) });
+  const values = keys.map(({ name, parts }) => {
+    return `{${name}: ${inspect(getIn(props, parts))}}`;
   });
 
   let interpolated = interpolate(literals, ...values);
