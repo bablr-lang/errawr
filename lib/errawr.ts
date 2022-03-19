@@ -11,8 +11,8 @@ export type InvariantOptions = Options & { ctor?: Function };
 export default class Errawr extends Error {
   info: Record<string, any>;
 
-  static rawr(template: string) {
-    return rawr(template);
+  static get rawr() {
+    return rawr;
   }
 
   static print(err: Error): string {

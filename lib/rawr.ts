@@ -1,5 +1,7 @@
 // Adapted from pupa Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
+import type { Interpolator } from './errawr';
+
 import inspect from 'object-inspect';
 
 const { hasOwnProperty } = Object.prototype;
@@ -184,7 +186,7 @@ const assertValidKeys = (keys: Array<KeyNode>) => {
   }
 };
 
-const rawr = (template: string | Array<string>, ...values: Array<unknown>) => {
+const rawr = (template: string | Array<string>, ...values: Array<unknown>): Interpolator => {
   if (Array.isArray(template)) {
     // rawr`${str}{prop}` => props => string
     const { literals, keys } = parse(interpolate(template, ...values));
