@@ -31,7 +31,7 @@
     "properties",
     "debug"
   ],
-  "repository": "git@github.com:conartist6/errawr.git",
+  "repository": "git@github.com:bablr-lang/errawr.git",
   "author": "Conrad Buck <conartist6@gmail.com>",
   "license": "MIT",
   "dependencies": {
