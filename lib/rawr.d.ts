@@ -1,5 +1,5 @@
 import type { Interpolator } from './errawr';
-export declare type KeyNode = {
+export type KeyNode = {
     name: string;
     parts: Array<string>;
     doubleCurly: boolean;

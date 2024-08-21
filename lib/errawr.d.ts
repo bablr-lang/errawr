@@ -1,12 +1,12 @@
-export declare type Gettable = Array<any> | Record<string, any>;
-export declare type Interpolator = (data: Gettable) => string;
-export declare type Options = {
+export type Gettable = Array<any> | Record<string, any>;
+export type Interpolator = (data: Gettable) => string;
+export type Options = {
     info?: Gettable;
     code?: any;
     cause?: any;
     topFrame?: Function;
 };
-export declare type InvariantOptions = Options & {
+export type InvariantOptions = Options & {
     ctor?: Function;
 };
 export default class Errawr extends Error {
